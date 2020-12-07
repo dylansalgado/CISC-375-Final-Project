@@ -11,7 +11,7 @@ let port = 8000;
 
 let public_dir = path.join(__dirname, 'public');
 let template_dir = path.join(__dirname, 'templates');
-let db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
+let db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3'); 
 
 // open stpaul_crime.sqlite3 database
 // data source: https://information.stpaul.gov/Public-Safety/Crime-Incident-Report-Dataset/gppb-g9cg
@@ -31,7 +31,20 @@ app.use(express.static(public_dir));
 // Respond with list of codes and their corresponding incident type
 app.get('/codes', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-    
+    // db.all("SELECT * FROM Codes")
+    db.all("SELECT * FROM Codes", req, (err, rows) => {
+        if(err) {
+            res.status(404).type("txt");
+            res.write("Error executing SQL query");
+            res.end();
+        }
+        else {
+            console.log("Successfully read query");
+            res.status(200).type('json');
+            code = 0;
+            type = "";
+        }
+    });
     res.status(200).type('json').send({});
 });
 
@@ -39,7 +52,7 @@ app.get('/codes', (req, res) => {
 // Respond with list of neighborhood ids and their corresponding neighborhood name
 app.get('/neighborhoods', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-
+    // db.all("SELECT * from Neighborhoods")
     res.status(200).type('json').send({});
 });
 
@@ -47,7 +60,34 @@ app.get('/neighborhoods', (req, res) => {
 // Respond with list of crime incidents
 app.get('/incidents', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
+    db.all("SELECT * from Incidents", req, (err, rows) => {
+        if(err) {
+            res.status(404).type("txt");
+            res.write("Error executing SQL query");
+            res.end();
+        }
+        else {
+            console.log("Successfully read query");
+            // Make JSON object
+            /* EXAMPLE
+              {
+                "case_number": "19245020",
+                "date": "2019-10-30",
+                "time": "23:57:08",
+                "code": 9954,
+                "incident": "Proactive Police Visit",
+                "police_grid": 87,
+                "neighborhood_number": 7,
+                "block": "THOMAS AV  & VICTORIA"
+              }
+            */
 
+            // split on T
+            res.status(200).type();
+            let 
+        }
+    }
+    );
     res.status(200).type('json').send({});
 });
 
