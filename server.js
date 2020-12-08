@@ -73,7 +73,7 @@ app.get('/incidents', (req, res) => {
               {
                 "case_number": "19245020",
                 "date": "2019-10-30",
-                "time": "23:57:08",
+                "time": "23:57:08", (if time includes date: 2019-05-009T05:00)
                 "code": 9954,
                 "incident": "Proactive Police Visit",
                 "police_grid": 87,
@@ -82,7 +82,12 @@ app.get('/incidents', (req, res) => {
               }
             */
 
-            // split on T
+            // split on T, will have to loop through the json
+            if(incidents_json["time"].includes("T")) {
+                //split on T
+                time_temp = incidents_json["time"].split("T");
+                incidents_json["time"] = time_temp[1];
+            }
             res.status(200).type();
             let 
         }
@@ -95,8 +100,14 @@ app.get('/incidents', (req, res) => {
 // Respond with 'success' or 'error'
 app.put('/new-incident', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
+    db.all("SELECT case_number FROM Incidents WHERE case_number = ?", req, (err, rows) => {
+        if(rows.length == 0) {
+            //This case number is not in the database
 
-    res.status(200).type('txt').send('success');
+        }
+    
+        res.status(200).type('txt').send('success');
+    }
 });
 
 
