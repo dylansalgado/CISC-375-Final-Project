@@ -6,6 +6,10 @@
         "name": "",
         "email": ""
     },
+    "contributers" : {
+        "name": "Emma Sinn",
+        "email": "sinn2375@stthomas.edu"
+    },
     "main": "server.js",
     "repository": {
         "type": "git",
