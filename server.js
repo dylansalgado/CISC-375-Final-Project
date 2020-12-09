@@ -29,10 +29,11 @@ app.use(express.static(public_dir));
 
 // REST API: GET /codes
 // Respond with list of codes and their corresponding incident type
+let codetypearr = [];
 app.get('/codes', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
     // db.all("SELECT * FROM Codes")
-    db.all("SELECT * FROM Codes", req, (err, rows) => {
+    db.all("SELECT * FROM Codes", req.params, (err, rows) => {
         if(err) {
             res.status(404).type("txt");
             res.write("Error executing SQL query");
@@ -40,20 +41,53 @@ app.get('/codes', (req, res) => {
         }
         else {
             console.log("Successfully read query");
+            
+            //var codetypearr = [];
+            
+            for(var i in rows){
+                var item = rows[i];
+                codetypearr.push(item);
+            }
             res.status(200).type('json');
-            code = 0;
-            type = "";
+            res.status(200).type('json').send(codetypearr);
         }
     });
-    res.status(200).type('json').send({});
 });
 
 // REST API: GET /neighborhoods
 // Respond with list of neighborhood ids and their corresponding neighborhood name
+var neighborhoodobj = [];
 app.get('/neighborhoods', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
     // db.all("SELECT * from Neighborhoods")
-    res.status(200).type('json').send({});
+    db.all("SELECT * FROM Neighborhoods ORDER BY neighborhood_name ASC", req.params, (err, rows) => {
+        if(err) {
+            res.status(404).type("txt");
+            res.write("Error executing SQL query");
+            res.end();
+        }
+        else {
+            console.log("Successfully read query");
+            var addedNums = [] 
+            for(var i in rows){
+                var item = rows[i];
+                var splitNeighborhood = String(item.neighborhood_number).split(" - ").pop();
+                var check = addedNums.includes(item.neighborhood_name);
+
+                if(check == false){
+                    var insert = {
+                        "id" : item.neighborhood_name,
+                        "name" : splitNeighborhood
+                    }
+                    neighborhoodobj.push(insert);
+                }
+                addedNums.push(item.neighborhood_name);
+                
+            }
+            res.status(200).type('json');
+            res.status(200).type('json').send(neighborhoodobj);
+        }
+    });
 });
 
 // REST API: GET/incidents
