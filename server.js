@@ -42,8 +42,6 @@ app.get('/codes', (req, res) => {
         else {
             console.log("Successfully read query");
             
-            //var codetypearr = [];
-            
             for(var i in rows){
                 var item = rows[i];
                 codetypearr.push(item);
@@ -71,19 +69,20 @@ app.get('/neighborhoods', (req, res) => {
             var addedNums = [] 
             for(var i in rows){
                 var item = rows[i];
-                var splitNeighborhood = String(item.neighborhood_number).split(" - ").pop();
-                var check = addedNums.includes(item.neighborhood_name);
+                var splitNeighborhood = String(item.neighborhood_name).split(" - ").pop();
+                var check = addedNums.includes(item.neighborhood_number);
 
                 if(check == false){
                     var insert = {
-                        "id" : item.neighborhood_name,
+                        "id" : item.neighborhood_number,
                         "name" : splitNeighborhood
                     }
                     neighborhoodobj.push(insert);
                 }
-                addedNums.push(item.neighborhood_name);
+                addedNums.push(item.neighborhood_number);
                 
             }
+            
             res.status(200).type('json');
             res.status(200).type('json').send(neighborhoodobj);
         }
@@ -92,11 +91,12 @@ app.get('/neighborhoods', (req, res) => {
 
 // REST API: GET/incidents
 // Respond with list of crime incidents
+var incidents_json = [];
 app.get('/incidents', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-    db.all("SELECT * from Incidents", req, (err, rows) => {
+    db.all("SELECT * FROM Incidents", req.params, (err, rows) => {
         if(err) {
-            res.status(404).type("txt");
+            res.status(404).type("Error");
             res.write("Error executing SQL query");
             res.end();
         }
@@ -115,32 +115,44 @@ app.get('/incidents', (req, res) => {
                 "block": "THOMAS AV  & VICTORIA"
               }
             */
-
+            incidents_json = rows;
             // split on T, will have to loop through the json
-            if(incidents_json["time"].includes("T")) {
-                //split on T
-                time_temp = incidents_json["time"].split("T");
-                incidents_json["time"] = time_temp[1];
+            var i = 0;
+            for(i; i < incidents_json.length; i++) {
+                if(String(incidents_json[i]["time"]).includes("T")){
+                    //split on T
+                    time_temp = String(incidents_json[i]["time"].split("T"));
+                    incidents_json[i]["time"] = time_temp[1];
+                }
             }
-            res.status(200).type();
-            let 
+
+            res.status(200).type('json');
+            res.status(200).type('json').send(incidents_json);
         }
-    }
-    );
-    res.status(200).type('json').send({});
+    });
+    
 });
 
 // REST API: PUT /new-incident
 // Respond with 'success' or 'error'
 app.put('/new-incident', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-    db.all("SELECT case_number FROM Incidents WHERE case_number = ?", req, (err, rows) => {
-        if(rows.length == 0) {
-            //This case number is not in the database
+    db.all("SELECT case_number FROM Incidents WHERE case_number", req.case_number, (err, rows) => {
+        if(err) {
+            res.status(404).type("Error");
+            res.write("Error executing SQL query");
+            res.end();
+        } else {
+            if(rows.length == 0) {
+                //This case number is not in the database
 
-        }
+            } else {
+                res.write("Case number already exists");
+            }
     
-        res.status(200).type('txt').send('success');
+            res.status(200).type('json');
+            res.status(200).type('json').send({});
+        }
     });
 });
 
