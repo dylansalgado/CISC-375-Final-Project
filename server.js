@@ -137,7 +137,8 @@ app.get('/incidents', (req, res) => {
 // Respond with 'success' or 'error'
 app.put('/new-incident', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-    db.all("SELECT case_number FROM Incidents WHERE case_number", req.case_number, (err, rows) => {
+    let case_number_add = req.params.case_number;
+    db.all("SELECT case_number FROM Incidents WHERE case_number = ?", [case_number_add], (err, rows) => {
         if(err) {
             res.status(404).type("Error");
             res.write("Error executing SQL query");
@@ -145,13 +146,36 @@ app.put('/new-incident', (req, res) => {
         } else {
             if(rows.length == 0) {
                 //This case number is not in the database
+                var case_number_add = req.params.case_number;
+                var date_add = req.params.date;
+                var time_add = req.params.time;
+                var code_add = req.params.code;
+                var incident_add = req.params.incident;
+                var police_grid_add = req.params.police_grid;
+                var neighborhood_num = req.params.neighborhood_number;
+                var block_add = req.params.block;
 
+                var case_add = [{"case_number": case_number_add, "date": date_add, "time": time_add, "code": code_add, "incident": incident_add, "\
+                            police_grid": police_grid_add, "neighborhood_number": neighborhood_num, "block": block_add}];
+                
+                db.collection.insert(
+                    {
+                        "case_number": case_number_add,
+                        "date": date_add,
+                        "time": time_add,
+                        "code": code_add,
+                        "incident": incident_add,
+                        "police_grid": police_grid_add,
+                        "neighborhood_number": neighborhood_num,
+                        "block": block_add
+                    });
             } else {
                 res.write("Case number already exists");
+                res.end();
             }
     
             res.status(200).type('json');
-            res.status(200).type('json').send({});
+            res.status(200).type('json').send(case_add);
         }
     });
 });
