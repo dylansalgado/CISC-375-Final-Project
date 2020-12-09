@@ -141,7 +141,7 @@ app.put('/new-incident', (req, res) => {
         }
     
         res.status(200).type('txt').send('success');
-    }
+    });
 });
 
 
