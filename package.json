@@ -3,20 +3,26 @@
     "version": "0.0.0",
     "description": "RESTful Web Server and Single Page Application",
     "author": {
-        "name": "",
-        "email": ""
+        "name": "Dylan Salgado",
+        "email": "salg3421@stthomas.edu"
     },
-    "contributers" : {
-        "name": "Emma Sinn",
-        "email": "sinn2375@stthomas.edu"
-    },
+    "contributers": [
+        {
+            "name": "Emma Sinn",
+            "email": "sinn2375@stthomas.edu"
+        },
+        {
+            "name": "Andrew Buirge",
+            "email": "buir1949@stthomas.edu"
+        }
+    ],
     "main": "server.js",
     "repository": {
         "type": "git",
-        "url": ""
+        "url": "https://github.com/dylansalgado/CISC-375-Final-Project"
     },
     "dependencies": {
         "express": "^4.17.1",
-        "sqlite3": "^4.1.0"
+        "sqlite3": "^4.2.0"
     }
 }
