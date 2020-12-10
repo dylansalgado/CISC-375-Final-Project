@@ -33,23 +33,44 @@ let codetypearr = [];
 app.get('/codes', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
     // db.all("SELECT * FROM Codes")
-    db.all("SELECT * FROM Codes", req.params, (err, rows) => {
-        if(err) {
-            res.status(404).type("txt");
-            res.write("Error executing SQL query");
-            res.end();
-        }
-        else {
-            console.log("Successfully read query");
-            
-            for(var i in rows){
-                var item = rows[i];
-                codetypearr.push(item);
+    if(req.includes("?code=")) {
+        //If want a specific code, something along these lines
+        db.all("SELECT * FROM Codes WHERE code = ?", req.params, (err, rows) => {
+            if(err) {
+                res.status(404).type("txt");
+                res.write("Error executing SQL query");
+                res.end();
             }
-            res.status(200).type('json');
-            res.status(200).type('json').send(codetypearr);
-        }
-    });
+            else {
+                console.log("Successfully read query");
+                
+                for(var i in rows){
+                    var item = rows[i];
+                    codetypearr.push(item);
+                }
+                res.status(200).type('json');
+                res.status(200).type('json').send(codetypearr);
+            }
+        });
+    } else {
+        db.all("SELECT * FROM Codes", req.params, (err, rows) => {
+            if(err) {
+                res.status(404).type("txt");
+                res.write("Error executing SQL query");
+                res.end();
+            }
+            else {
+                console.log("Successfully read query");
+                
+                for(var i in rows){
+                    var item = rows[i];
+                    codetypearr.push(item);
+                }
+                res.status(200).type('json');
+                res.status(200).type('json').send(codetypearr);
+            }
+        });
+    }
 });
 
 // REST API: GET /neighborhoods
