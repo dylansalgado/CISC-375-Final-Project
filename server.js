@@ -33,9 +33,27 @@ let codetypearr = [];
 app.get('/codes', (req, res) => {
     let url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
     // db.all("SELECT * FROM Codes")
-    if(req.includes("?code=")) {
+    if(req.originalUrl.includes("?code=")) {
         //If want a specific code, something along these lines
-        db.all("SELECT * FROM Codes WHERE code = ?", req.params, (err, rows) => {
+        //This gets everything after ?code=
+        var url_flags = req.originalUrl.split('=')[1];
+        var list_of_codes = [];
+
+        //If there are multiple codes, get all the codes
+        if(url_flags.includes(",")) {
+            list_of_codes = url_flags.split(",");
+            console.log(list_of_codes);
+        } else {
+            list_of_codes = url_flags;
+        }
+        var query = "SELECT * FROM Codes WHERE code = ?";
+
+        var i = 1;
+        for(i; i < list_of_codes.length; i++) {
+            query = query + "OR code = ?";
+        }
+
+        db.all(query, list_of_codes, (err, rows) => {
             if(err) {
                 res.status(404).type("txt");
                 res.write("Error executing SQL query");
@@ -175,9 +193,6 @@ app.put('/new-incident', (req, res) => {
                 var police_grid_add = req.params.police_grid;
                 var neighborhood_num = req.params.neighborhood_number;
                 var block_add = req.params.block;
-
-                var case_add = [{"case_number": case_number_add, "date": date_add, "time": time_add, "code": code_add, "incident": incident_add, "\
-                            police_grid": police_grid_add, "neighborhood_number": neighborhood_num, "block": block_add}];
                 
                 db.collection.insert(
                     {
@@ -190,6 +205,8 @@ app.put('/new-incident', (req, res) => {
                         "neighborhood_number": neighborhood_num,
                         "block": block_add
                     });
+                    res.write("Successfully added!");
+                    res.end();
             } else {
                 res.write("Case number already exists");
                 res.end();
