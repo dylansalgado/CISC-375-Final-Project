@@ -209,48 +209,67 @@ app.get('/incidents', (req, res) => {
         let code; //This could be a list
         let grid; //This could be a list
         let neighborhood; //This could be a list
-        let limit;
-
+        let limit = 1000;
+        
         //This will split the different params
         let list_of_params = [];
         if(params.includes("&")) {
             //There are multiple parameters
             list_of_params = params.split("&");
         } else {
-            list_of_params = params;
+            list_of_params = [params];
         }
 
         let i = 0;
         for(i; i < list_of_params.length; i++) {
             //split params into their categories
-            if(list_of_params[i].includes("start_date")) {
+            if(list_of_params[i].split("=")[0] == "start_date") {
                 start_date = list_of_params[i].split("=")[1];
-            } else if(list_of_params[i].includes("end_date")) {
+
+            } else if(list_of_params[i].split("=")[0] == "end_date") {
                 end_date = list_of_params[i].split("=")[1];
-            } else if(list_of_params[i].includes("code")) {
+
+            } else if(list_of_params[i].split("=")[0] == "code") {
                 code = list_of_params[i].split("=")[1];
-            } else if(list_of_params[i].includes("grid")) {
+
+            } else if(list_of_params[i].split("=")[0] == "police_grid") {
                 grid = list_of_params[i].split("=")[1];
-            } else if(list_of_params[i].includes("neighborhood")) {
+
+            } else if(list_of_params[i].split("=")[0] == "neighborhood_number") {
                 neighborhood = list_of_params[i].split("=")[1];
-            } else if(list_of_params[i].includes("limit")) {
+
+            } else if(list_of_params[i].split("=")[0] == "limit") {
                 limit = list_of_params[i].split("=")[1];
             }
         }
 
         //Check to see if there are multiple inputs for certain categories
-        if(code.includes(",")) {
-            code = code.split(",");
+        if(code) {
+            if(code.includes(",")) {
+                code = code.split(",");
+            } else {
+                //Must be an array for later
+                code = [code];
+            }
         }
-        if(grid.includes(",")) {
-            grid = grid.split(",");
+        if(grid) {
+            if(grid.includes(",")) {
+                grid = grid.split(",");
+            } else {
+                //Must be an array for later
+                grid = [grid];
+            }
         }
-        if(neighborhood.includes(",")) {
-            neighborhood = neighborhood.split(",");
+        if(neighborhood) {
+            if(neighborhood.includes(",")) {
+                neighborhood = neighborhood.split(",");
+            } else {
+                //Must be an array for later
+                neighborhood = [neighborhood];
+            }
         }
 
         //Forming the query and params, if the thing is present, it adds to the query and parameters
-        //AND's or OR's, ask about this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         let query = "SELECT * FROM Incidents WHERE";
         let params_list = [];
         if(start_date) {
@@ -273,16 +292,26 @@ app.get('/incidents', (req, res) => {
         if(code) {
             if(params_list.length == 0) {
                 let i = 1;
-                query = query + " code = ?";
+                
+                if(code.length > 1) {
+                    query = query + " (code = ?";
+                } else {
+                    query = query + " code = ?";
+                }
+
                 for(i; i < code.length; i++) {
-                    query = query + " OR code = ?";
+                    query = query + " OR code = ?)";
                 }
             } else {
                 let i = 1;
-                //Is this an OR or an AND
-                query = query + "OR code = ?";
+                if(code.length > 1) {
+                    query = query + "AND (code = ?";
+                } else {
+                    query = query + "AND code = ?";
+                }
+
                 for(i; i < code.length; i++) {
-                    query = query + " OR code = ?";
+                    query = query + " OR code = ?)";
                 }
             }
             let i = 0;
@@ -294,16 +323,23 @@ app.get('/incidents', (req, res) => {
         if(grid) {
             if(params_list.length == 0) {
                 let i = 1;
-                query = query + " police_grid = ?";
+                if(grid.length > 1) {
+                    query = query + " (police_grid = ?";
+                } else {
+                    query = query + " police_grid = ?";
+                }
                 for(i; i < grid.length; i++) {
-                    query = query + " OR police_grid = ?";
+                    query = query + " OR police_grid = ?)";
                 }
             } else {
                 let i = 1;
-                //Is this an OR or an AND
-                query = query + " OR police_grid = ?";
+                if(grid.length > 1) {
+                    query = query + " AND (police_grid = ?";
+                } else {
+                    query = query + " AND police_grid = ?";
+                }
                 for(i; i < grid.length; i++) {
-                    query = query + " OR police_grid = ?";
+                    query = query + " OR police_grid = ?)";
                 }
             }
             let i = 0;
@@ -315,16 +351,24 @@ app.get('/incidents', (req, res) => {
         if(neighborhood) {
             if(params_list.length == 0) {
                 let i = 1;
-                query = query + " neighborhood_number = ?";
+                if(neighborhood.length == 1) {
+                    query = query + " neighborhood_number = ?";
+                } else {
+                    query = query + " (neighborhood_number = ?";
+                }
                 for(i; i < neighborhood.length; i++) {
-                    query = query + " OR neighborhood_number = ?";
+                    query = query + " OR neighborhood_number = ?)";
                 }
             } else {
                 let i = 1;
-                //Is this an OR or an AND
-                query = query + " OR neighborhood_number = ?";
+                if(neighborhood.length > 1) {
+                    query = query + " AND (neighborhood_number = ?";
+                } else {
+                    query = query + " AND neighborhood_number = ?";
+                }
+
                 for(i; i < neighborhood.length; i++) {
-                    query = query + " OR neighborhood_number = ?";
+                    query = query + " OR neighborhood_number = ?)";
                 }
             }
             let i = 0;
@@ -335,13 +379,14 @@ app.get('/incidents', (req, res) => {
 
         if(limit) {
             if(params_list.length == 0) {
-                query = query + " ";
+                query = query + " LIMIT 0, " + limit + "ORDER BY date";
             }
         }
-
+        console.log(query);
+        console.log(params_list);
         //Clear the json
         incidents_json = [];
-        db.all(query, list_of_params, (err, rows) => {
+        db.all(query, params_list, (err, rows) => {
             if(err) {
                 res.status(404).type("Error");
                 res.write("Error executing SQL query");
@@ -434,14 +479,59 @@ app.put('/new-incident', (req, res) => {
         } else {
             if(rows.length == 0) {
                 //This case number is not in the database
-                var case_number_add = req.params.case_number;
-                var date_add = req.params.date;
-                var time_add = req.params.time;
-                var code_add = req.params.code;
-                var incident_add = req.params.incident;
-                var police_grid_add = req.params.police_grid;
-                var neighborhood_num = req.params.neighborhood_number;
-                var block_add = req.params.block;
+                var case_number_add;
+                var date_add;
+                var time_add;
+                var code_add;
+                var incident_add;
+                var police_grid_add;
+                var neighborhood_number_add;
+                var block_add;
+
+                //Split the params off
+                let params;
+                if(req.originalUrl.includes("?")) {
+                    params = req.originalUrl.split("?")[1];
+                } else {
+                    res.write("Error: Must include inputs");
+                    res.end();
+                }
+                
+                if(params.includes("&")) {
+                    params = params.split("&");
+                } else {
+                    res.write("Error: Must include all inputs");
+                    res.end();
+                }
+
+                if(params.length != 8) {
+                    res.write("Error: Must include all inputs");
+                    res.end();
+                }
+
+                let i = 0;
+                for(i; i < params.length; i++) {
+                    if(params[i].split("=")[0] == "case_number") {
+                        case_number_add = params[i].split("=")[1];
+                    } else if(params[i].split("=")[0] == "date") {
+                        date_add = params[i].split("=")[1];
+                    } else if(params[i].split("=")[0] == "time") {
+                        time_add = params[i].split("=")[1];
+                    } else if(params[i].split("=")[0] == "code") {
+                        code_add = params[i].split("=")[1];
+                    } else if(params[i].split("=")[0] == "incident") {
+                        incident_add = params[i].split("=")[1];
+                    } else if(params[i].split("=")[0] == "police_grid") {
+                        police_grid_add = params[i].split("=")[1];
+                    } else if(params[i].split("=")[0] == "neighborhood_number") {
+                        neighborhood_number_add = params[i].split("=")[1];
+                    } else if(params[i].split("=")[0] == "block") {
+                        block_add = params[i].split("=")[1];
+                    } else {
+                        res.write("Invalid Input");
+                        res.end();
+                    }
+                }
                 
                 db.collection.insert(
                     {
@@ -451,7 +541,7 @@ app.put('/new-incident', (req, res) => {
                         "code": code_add,
                         "incident": incident_add,
                         "police_grid": police_grid_add,
-                        "neighborhood_number": neighborhood_num,
+                        "neighborhood_number": neighborhood_nuber_add,
                         "block": block_add
                     });
                     res.write("Successfully added!");
