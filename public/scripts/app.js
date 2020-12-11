@@ -42,6 +42,7 @@ function init() {
         }
     });
 
+
     map = L.map('leafletmap').setView([app.map.center.lat, app.map.center.lng], app.map.zoom);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -61,7 +62,51 @@ function init() {
     }).catch((error) => {
         console.log('Error:', error);
     });
+
+    var lookup_button = document.getElementById("lookup");
+    lookup_button.addEventListener("click", geoLocate, false);
+
 }
+
+function geoLocate(event) {
+    // Perform geolocation using the Nominatim API
+    //  - get plain text location value from text input 'location'
+    //  - build URL for using with API
+    let location = document.getElementById('addr');
+    let url = 'https://nominatim.openstreetmap.org/search?q=' + addr.value +
+              '&format=json&limit=25&accept-language=en';
+    console.log(url);
+    
+    // TODO: download geolocation data using the API url
+    //       should call the `getJSON()` function
+    if (event.type === "click") {   
+        getJSON(url, geoLocate);
+    }
+
+    // TODO: once data is downloaded and available, you should dynamically
+    //       build items in the unordered list `result`. Each item should
+    //       have the full name of the location (display_name), followed
+    //       by the latitude and longitude
+    //       Example: location = St. Paul
+    //        - Saint Paul, Ramsey County, Minnesota, United States of
+    //          America (44.9504037, -93.1015026)
+    //        - Saint-Paul, Neufchâteau, Vosges, Grand Est, Metropolitan
+    //          France, 88170, France (48.3285226, 5.888596)
+    //        - ...
+    if (event.type !== "click"){
+        // console.log("event found ", event);
+        var container = document.getElementById("result");
+        var new_li;
+        for (var i = 0; i<event.length; i++){
+            new_li = document.createElement("li");
+            console.log("event[i] ", event[i]);
+            new_li.textContent = event[i].display_name + " (" + event[i].lat + ", " + event[i].lon + ")";
+            container.appendChild(new_li);
+        }
+    }
+    
+}
+
 
 function getJSON(url) {
     return new Promise((resolve, reject) => {

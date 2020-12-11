@@ -29,6 +29,14 @@
     <!-- Main app -->
     <div id="app">
         <div id="leafletmap"></div>
+       
+        <div id="search">
+            <input type="text" name="addr" value="" id="addr" size="10" />
+            <button type="button" id="lookup" onclick="geoLocate();">Search</button>
+            <div id="results"></div>
+        </div>
+
     </div>
+    
 </body>
 </html>
