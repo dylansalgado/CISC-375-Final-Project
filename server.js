@@ -378,9 +378,7 @@ app.get('/incidents', (req, res) => {
         }
 
         if(limit) {
-            if(params_list.length == 0) {
-                query = query + " LIMIT 0, " + limit + "ORDER BY date";
-            }
+            query = query + " LIMIT 0, " + limit + "ORDER BY date";
         }
         console.log(query);
         console.log(params_list);
