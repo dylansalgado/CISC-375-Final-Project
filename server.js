@@ -77,7 +77,7 @@ app.get('/codes', (req, res) => {
         //clear the json out
         codetypearr = [];
         //Default query
-        db.all("SELECT * FROM Codes", req.params, (err, rows) => {
+        db.all("SELECT * FROM Codes ORDER BY code ASC", req.params, (err, rows) => {
             if(err) {
                 res.status(404).type("txt");
                 res.write("Error executing SQL query");
@@ -426,7 +426,7 @@ app.get('/incidents', (req, res) => {
         //Clear the json
         incidents_json = [];
         //Default query
-        db.all("SELECT * FROM Incidents", req.params, (err, rows) => {
+        db.all("SELECT * FROM Incidents ORDER BY case_number ASC", req.params, (err, rows) => {
             if(err) {
                 res.status(404).type("Error");
                 res.write("Error executing SQL query");
