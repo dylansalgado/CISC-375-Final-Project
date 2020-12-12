@@ -378,8 +378,9 @@ app.get('/incidents', (req, res) => {
         }
 
         if(limit) {
-            query = query + " LIMIT 0, " + limit + "ORDER BY date";
+            query = query + " ORDER BY date DESC LIMIT " + limit;
         }
+        
         console.log(query);
         console.log(params_list);
         //Clear the json
