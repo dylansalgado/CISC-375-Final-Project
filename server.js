@@ -426,7 +426,7 @@ app.get('/incidents', (req, res) => {
         //Clear the json
         incidents_json = [];
         //Default query
-        db.all("SELECT * FROM Incidents ORDER BY date DESC LIMIT 1000", req.params, (err, rows) => {
+        db.all("SELECT * FROM Incidents WHERE date LIKE '%2020' ORDER BY date DESC, time DESC LIMIT 1000", req.params, (err, rows) => {
             if(err) {
                 res.status(404).type("Error");
                 res.write("Error executing SQL query");
