@@ -1,3 +1,4 @@
+
 let app;
 let map;
 let neighborhood_markers = 
@@ -72,7 +73,7 @@ function geoLocate(event) {
     // Perform geolocation using the Nominatim API
     //  - get plain text location value from text input 'location'
     //  - build URL for using with API
-    let location = document.getElementById('addr');
+    let addr = document.getElementById('addr');
     let url = 'https://nominatim.openstreetmap.org/search?q=' + addr.value +
               '&format=json&limit=25&accept-language=en';
     console.log(url);
@@ -80,7 +81,28 @@ function geoLocate(event) {
     // TODO: download geolocation data using the API url
     //       should call the `getJSON()` function
     if (event.type === "click") {   
-        getJSON(url, geoLocate);
+        console.log("CLICK");
+        var req1_data;
+        var req1 = getJSON(url);
+        var req2 = req1.then((data) => {
+            req1_data = data;
+            return req1_data;
+        });
+        console.log(req2);
+        req2.then((data) => {
+            var result = document.getElementById('result');
+            console.log(result);
+            console.log(data);
+            console.log(data.length);
+            for (var i = 0; i<data.length; i++){
+                new_li = document.createElement("li");
+                console.log("data[i] ", data[i]);
+                new_li.textContent = data[i].display_name + " (" + data[i].lat + ", " + data[i].lon + ")";
+                console.log(new_li);
+                result.appendChild(new_li);
+            }
+            console.log(result)
+        });
     }
 
     // TODO: once data is downloaded and available, you should dynamically
@@ -94,7 +116,7 @@ function geoLocate(event) {
     //          France, 88170, France (48.3285226, 5.888596)
     //        - ...
     if (event.type !== "click"){
-        // console.log("event found ", event);
+        console.log("event found ", event);
         var container = document.getElementById("result");
         var new_li;
         for (var i = 0; i<event.length; i++){
@@ -114,9 +136,13 @@ function getJSON(url) {
             dataType: "json",
             url: url,
             success: function(data) {
+                console.log("SUCCESSFUL DATA INCOMING");
+                console.log(data);
                 resolve(data);
             },
             error: function(status, message) {
+                console.log("REJECTED DATA INCOMING");
+                console.log(status);
                 reject({status: status.status, message: status.statusText});
             }
         });
