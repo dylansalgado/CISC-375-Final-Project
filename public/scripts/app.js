@@ -91,15 +91,20 @@ function geoLocate(event) {
         console.log(req2);
         req2.then((data) => {
             var result = document.getElementById('result');
+            result.innerHTML = "";
             console.log(result);
             console.log(data);
             console.log(data.length);
             for (var i = 0; i<data.length; i++){
-                new_li = document.createElement("li");
-                console.log("data[i] ", data[i]);
-                new_li.textContent = data[i].display_name + " (" + data[i].lat + ", " + data[i].lon + ")";
-                console.log(new_li);
-                result.appendChild(new_li);
+                var currentItem = data[i].display_name
+                if (currentItem.search("Saint Paul") !== -1 && currentItem.search("Minnesota") !== -1 ) {
+                    new_li = document.createElement("li");
+                    console.log("data[i] ", data[i]);
+                    new_li.textContent = data[i].display_name + " (" + data[i].lat + ", " + data[i].lon + ")";
+                    console.log(new_li);
+                    result.appendChild(new_li);
+                }
+
             }
             console.log(result)
         });
