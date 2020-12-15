@@ -144,30 +144,27 @@ function geoLocate(event) {
             var breakTag = 0;
             var newBounds;
             for (var i = 0; i<data.length; i++){
-                var currentItem = data[i].display_name
-                while (breakTag != 1) {
-                    if (currentItem.search("Saint Paul") !== -1 && currentItem.search("Minnesota") !== -1 ) {
-                        // NEW MARKER AND OPTIONS HERE
-                        var newMarker;
-                        var markerOptions = { 
-                            title: data[i].display_name
-                        }
-                        breakTag = 1;
-                        newBounds = data[i].boundingbox;
-                        new_li = document.createElement("li");
-                        console.log("data[i] ", data[i]);
-                        new_li.textContent = data[i].display_name + " (" + data[i].lat + ", " + data[i].lon + ")";
-                        newMarker = L.marker([data[i].lat, data[i].lon], markerOptions).addTo(map);
-                        result.appendChild(new_li);
-                    }    
-                }
-                break;
+                var currentItem = data[i].display_name;
+                if (currentItem.search("Saint Paul") !== -1 && currentItem.search("Minnesota") !== -1 && breakTag !== 1) {
+                    // NEW MARKER AND OPTIONS HERE
+                    var newMarker;
+                    var markerOptions = { 
+                        title: data[i].display_name
+                    }
+                    breakTag = 1;
+                    newBounds = data[i].boundingbox;
+                    new_li = document.createElement("li");
+                    console.log("data[i] ", data[i]);
+                    new_li.textContent = data[i].display_name + " (" + data[i].lat + ", " + data[i].lon + ")";
+                    newMarker = L.marker([data[i].lat, data[i].lon], markerOptions).addTo(map);
+                    result.appendChild(new_li);            
+                    map.zoomIn(10);
+                    map.flyTo(newMarker.getLatLng());
+                    map.removeLayer(newMarker);
+                    console.log(map.get);
+                    console.log(newBounds);
+                }    
             }
-            map.zoomIn(10);
-            map.flyTo(newMarker.getLatLng());
-            map.removeLayer(newMarker);
-            console.log(map.get);
-            console.log(newBounds);
             // console.log(result.)
         });
     }
