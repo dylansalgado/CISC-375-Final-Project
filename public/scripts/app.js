@@ -43,18 +43,65 @@ function init() {
         }
     });
 
-
+    // create map
     map = L.map('leafletmap').setView([app.map.center.lat, app.map.center.lng], app.map.zoom);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         minZoom: 11,
         maxZoom: 18
     }).addTo(map);
+
+    // set max bounds
     map.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
+
+    // SET CURRENT BOUNDS FOR INCIDENT SEARCH WITHIN MAP AREA
+    let currentBounds = ([[44.883658, -93.217977], [45.008206, -92.993787]]);
+    let currentWidth = map.getBounds().getEast() - map.getBounds().getWest();
+    let currentHeight = map.getBounds().getNorth() - map.getBounds().getSouth();
+
+    // Change corner coords on drag
+    map.on('dragend', function onDragEnd(){
+        currentWidth = map.getBounds().getEast() - map.getBounds().getWest();
+        currentHeight = map.getBounds().getNorth() - map.getBounds().getSouth();
+
+        currentBounds = (
+            [
+                [map.getBounds().getNorth(), map.getBounds().getWest()], 
+                [map.getBounds().getSouth(), map.getBounds().getEast()]
+            ]
+        );
     
+        alert (
+            'center: ' + map.getCenter() +'\n'+
+            'currentWidth: ' + currentWidth +'\n'+
+            'currentHeight: ' + currentHeight +'\n'+
+            'currentBounds: ' + currentBounds + '\n'
+        )
+    });
+
+    // Change corner coords on zoom
+    map.on('zoomend', function onZoomChange(){
+        currentWidth = map.getBounds().getEast() - map.getBounds().getWest();
+        currentHeight = map.getBounds().getNorth() - map.getBounds().getSouth();
+
+        currentBounds = (
+            [
+                [map.getBounds().getNorth(), map.getBounds().getWest()], 
+                [map.getBounds().getSouth(), map.getBounds().getEast()]
+            ]
+        );
+    
+        alert (
+            'center: ' + map.getCenter() +'\n'+
+            'currentWidth: ' + currentWidth +'\n'+
+            'currentHeight: ' + currentHeight +'\n'+
+            'currentBounds: ' + currentBounds + '\n'
+        )
+    });
+
+    // District bounds
     let district_boundary = new L.geoJson();
     district_boundary.addTo(map);
-
     getJSON('data/StPaulDistrictCouncil.geojson').then((result) => {
         // St. Paul GeoJSON
         $(result.features).each(function(key, value) {
@@ -64,6 +111,7 @@ function init() {
         console.log('Error:', error);
     });
 
+    // Location lookup button
     var lookup_button = document.getElementById("lookup");
     lookup_button.addEventListener("click", geoLocate, false);
 
@@ -164,7 +212,7 @@ function retrieveData() {
         var data_complete = data;
 
         // Neighborhood crime numbers
-        var neighborhood_num_crimes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        var neighborhood_num_crimes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
         //headers with the database's styling
         var headers = ["case_number", "date", "time", "code", "incident", "police_grid", "neighborhood_number", "block"];
