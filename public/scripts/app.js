@@ -71,12 +71,13 @@ function init() {
             ]
         );
     
-        alert (
+        console.log(
             'center: ' + map.getCenter() +'\n'+
             'currentWidth: ' + currentWidth +'\n'+
             'currentHeight: ' + currentHeight +'\n'+
             'currentBounds: ' + currentBounds + '\n'
-        )
+        );
+            
     });
 
     // Change corner coords on zoom
@@ -91,12 +92,12 @@ function init() {
             ]
         );
     
-        alert (
+        console.log(
             'center: ' + map.getCenter() +'\n'+
             'currentWidth: ' + currentWidth +'\n'+
             'currentHeight: ' + currentHeight +'\n'+
             'currentBounds: ' + currentBounds + '\n'
-        )
+        );
     });
 
     // District bounds
@@ -124,12 +125,9 @@ function geoLocate(event) {
     let addr = document.getElementById('addr');
     let url = 'https://nominatim.openstreetmap.org/search?q=' + addr.value +
               '&format=json&limit=25&accept-language=en';
-    console.log(url);
     
-    // TODO: download geolocation data using the API url
-    //       should call the `getJSON()` function
+    // in case of search button click, find first result in st paul and add marker to map
     if (event.type === "click") {   
-        console.log("CLICK");
         var req1_data;
         var req1 = getJSON(url);
         var req2 = req1.then((data) => {
@@ -143,18 +141,34 @@ function geoLocate(event) {
             console.log(result);
             console.log(data);
             console.log(data.length);
+            var breakTag = 0;
+            var newBounds;
             for (var i = 0; i<data.length; i++){
                 var currentItem = data[i].display_name
-                if (currentItem.search("Saint Paul") !== -1 && currentItem.search("Minnesota") !== -1 ) {
-                    new_li = document.createElement("li");
-                    console.log("data[i] ", data[i]);
-                    new_li.textContent = data[i].display_name + " (" + data[i].lat + ", " + data[i].lon + ")";
-                    console.log(new_li);
-                    result.appendChild(new_li);
+                while (breakTag != 1) {
+                    if (currentItem.search("Saint Paul") !== -1 && currentItem.search("Minnesota") !== -1 ) {
+                        // NEW MARKER AND OPTIONS HERE
+                        var newMarker;
+                        var markerOptions = { 
+                            title: data[i].display_name
+                        }
+                        breakTag = 1;
+                        newBounds = data[i].boundingbox;
+                        new_li = document.createElement("li");
+                        console.log("data[i] ", data[i]);
+                        new_li.textContent = data[i].display_name + " (" + data[i].lat + ", " + data[i].lon + ")";
+                        newMarker = L.marker([data[i].lat, data[i].lon], markerOptions).addTo(map);
+                        result.appendChild(new_li);
+                    }    
                 }
-
+                break;
             }
-            console.log(result)
+            map.zoomIn(10);
+            map.flyTo(newMarker.getLatLng());
+            map.removeLayer(newMarker);
+            console.log(map.get);
+            console.log(newBounds);
+            // console.log(result.)
         });
     }
 
