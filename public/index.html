@@ -39,16 +39,36 @@
               <h3 style="margin: 0;">Location Information</h3>
               <ul id="result"></ul>
             </div>
-
-            <table id="JSON_Table">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
-            <script>retrieveData();</script>
-            
         </div>
 
+        
+
     </div>
+
+    <script>retrieveData();//This is the table, with pages and ability to sort the data different ways</script>
+        <table id="table">
+            <thead>
+                <tr>
+                    <th v-for="col in columns" v-on:click="sortTable(col)">
+                        {{col}} <div class="arrow" v-if="col == sortColumn" v-bind:class="[ascending ? 'arrow_up' : 'arrow_down']"></div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="row in rows">
+                    <td v-for="col in columns">
+                        {{row[col]}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="pagination">
+            <div class="number"
+                 v-for="i in num_pages()"
+                 v-bind:class="[i == currentPage ? 'active' : '']"
+                 v-on:click="change_page(i)">{{i}}</div>
+          </div>
+        </div>
     
 </body>
 </html>

@@ -156,69 +156,91 @@ function retrieveData() {
         var data = result[0];
         var codes = result[1];
         var neighborhoods = result[2];
+        var data_complete = data;
 
         // Neighborhood crime numbers
         var neighborhood_num_crimes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        // Begin Making the table
-        var body = document.body;
-        var tbl  = document.getElementById("JSON_Table");
-
+        //headers with the database's styling
         var headers = ["case_number", "date", "time", "code", "incident", "police_grid", "neighborhood_number", "block"];
-        //Body
+        //How they will show up on the web page
+        var header_names = ["Case Number", "Date", "Time", "Incident Type", "Incident", "Police Grid", "Neighborhood Name", "Block"];
+
+        //data
         for(var i = 0; i < data.length; i++){
-            // Creating a new row
-            var tr = tbl.insertRow();
+            var temp_dict = {};
             for(var j = 0; j < headers.length; j++){
-                // Inserting data into the cell
-                var td = tr.insertCell();
-                // Insert the data
                 if(headers[j] == "code") {
-                    //Will have to do a get with the number as a param
-                    var code_found = false;
                     var iterator = 0;
                     for(iterator; iterator < codes.length; iterator++) {
-                    //while(!code_found) {
                         if(codes[iterator]["code"] == data[i]["code"]) {
                             //The code is found
-                            td.appendChild(document.createTextNode(codes[iterator]["incident_type"]));
-                            code_found = true;
+                            temp_dict[header_names[j]] = codes[iterator]["incident_type"];
                         }
                     }
                 } else if(headers[j] == "neighborhood_number") {
-                    //Will have to do a get with the number as a param
-                    //Increment the number of crimes commited in that neighborhood
                     neighborhood_num_crimes[data[i]["neighborhood_number"]]++;
-                    var neighborhood_found = false;
                     var iterator = 0;
-                    for(iterator; iterator < 17; iterator++) {
-                    //while(!neighborhood_found) {
+                    for(iterator; iterator < neighborhoods.length; iterator++) {
                         if(neighborhoods[iterator]["id"] == data[i]["neighborhood_number"]) {
-                            //The code is found
-                            td.appendChild(document.createTextNode(neighborhoods[iterator]["name"]));
-                            neighborhood_found = true;
+                            //The neighborhood is found
+                            temp_dict[header_names[j]] = neighborhoods[iterator]["name"];
                         }
                     }
                 } else {
-                    td.appendChild(document.createTextNode(data[i][headers[j]]));
-                //td.style.border = '1px solid black';
+                    temp_dict[header_names[j]] = data[i][headers[j]];
+                }
+
+            }
+            data_complete[i] = temp_dict;
+        }
+
+        // Table
+        var table = new Vue({
+            el: '#table',
+            data: {
+                currentPage: 1,
+                elementsPerPage: 25,
+                ascending: false,
+                sortColumn: '',
+                rows: [data_complete],
+                methods: {
+                    "sortTable": function sortTable(col) {
+                        if (this.sortColumn === col) {
+                            this.ascending = !this.ascending;
+                        } else {
+                            this.ascending = true;
+                            this.sortColumn = col;
+                        }
+                    
+                        var ascending = this.ascending;
+                
+                        this.rows.sort(function(a, b) {
+                            if (a[col] > b[col]) {
+                            return ascending ? 1 : -1
+                            } else if (a[col] < b[col]) {
+                            return ascending ? -1 : 1
+                            }
+                            return 0;
+                        })
+                    }
+                },
+                computed: {
+                    "columns": function columns() {
+                        if (this.rows.length == 0) {
+                            return [];
+                        }
+                        return Object.keys(this.rows[0])
+                    }
                 }
             }
-        }
+        });
+        
 
-        // Header
-        var header = tbl.createTHead();
-        var row = header.insertRow();
-        var header_names = ["Case Number", "Date", "Time", "Incident Type", "Incident", "Police Grid", "Neighborhood Name", "Block"];
-        for(var i = 0; i < header_names.length; i++) {
-            var th = document.createElement("th");
-            th.appendChild(document.createTextNode(header_names[i]));
-            row.appendChild(th);
-        }
-
-        body.appendChild(tbl);
         // End Making the table
 
+
+        console.log(data_complete);
         // Markers
         for(var i = 0; i < 17; i++) {
             // This is to initalize the marker
