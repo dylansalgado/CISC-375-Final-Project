@@ -412,7 +412,8 @@ app.get('/incidents', (req, res) => {
                 for(i; i < incidents_json.length; i++) {
                     if(String(incidents_json[i]["time"]).includes("T")){
                         //split on T
-                        time_temp = String(incidents_json[i]["time"].split("T"));
+                        time_temp = String(incidents_json[i]["time"].split("T")[1]);
+
                         incidents_json[i]["time"] = time_temp[1];
                     }
                 }
@@ -453,8 +454,8 @@ app.get('/incidents', (req, res) => {
                 for(i; i < incidents_json.length; i++) {
                     if(String(incidents_json[i]["time"]).includes("T")){
                         //split on T
-                        time_temp = String(incidents_json[i]["time"].split("T"));
-                        incidents_json[i]["time"] = time_temp[1];
+                        time_temp = String(incidents_json[i]["time"].split("T")[1]);
+                        incidents_json[i]["time"] = time_temp;
                     }
                 }
 
