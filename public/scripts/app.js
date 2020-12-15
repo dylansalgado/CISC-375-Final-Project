@@ -148,3 +148,85 @@ function getJSON(url) {
         });
     });
 }
+
+function retrieveData() {
+    // Get Incidents
+
+    Promise.all([getJSON('http://localhost:8000/incidents'), getJSON('http://localhost:8000/codes'), getJSON('http://localhost:8000/neighborhoods')]).then((result) => {
+        var data = result[0];
+        var codes = result[1];
+        var neighborhoods = result[2];
+
+        // Neighborhood crime numbers
+        var neighborhood_num_crimes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        // Begin Making the table
+        var body = document.body;
+        var tbl  = document.getElementById("JSON_Table");
+
+        var headers = ["case_number", "date", "time", "code", "incident", "police_grid", "neighborhood_number", "block"];
+        //Body
+        for(var i = 0; i < data.length; i++){
+            // Creating a new row
+            var tr = tbl.insertRow();
+            for(var j = 0; j < headers.length; j++){
+                // Inserting data into the cell
+                var td = tr.insertCell();
+                // Insert the data
+                if(headers[j] == "code") {
+                    //Will have to do a get with the number as a param
+                    var code_found = false;
+                    var iterator = 0;
+                    for(iterator; iterator < codes.length; iterator++) {
+                    //while(!code_found) {
+                        if(codes[iterator]["code"] == data[i]["code"]) {
+                            //The code is found
+                            td.appendChild(document.createTextNode(codes[iterator]["incident_type"]));
+                            code_found = true;
+                        }
+                    }
+                } else if(headers[j] == "neighborhood_number") {
+                    //Will have to do a get with the number as a param
+                    //Increment the number of crimes commited in that neighborhood
+                    neighborhood_num_crimes[data[i]["neighborhood_number"]]++;
+                    var neighborhood_found = false;
+                    var iterator = 0;
+                    for(iterator; iterator < 17; iterator++) {
+                    //while(!neighborhood_found) {
+                        if(neighborhoods[iterator]["id"] == data[i]["neighborhood_number"]) {
+                            //The code is found
+                            td.appendChild(document.createTextNode(neighborhoods[iterator]["name"]));
+                            neighborhood_found = true;
+                        }
+                    }
+                } else {
+                    td.appendChild(document.createTextNode(data[i][headers[j]]));
+                //td.style.border = '1px solid black';
+                }
+            }
+        }
+
+        // Header
+        var header = tbl.createTHead();
+        var row = header.insertRow();
+        var header_names = ["Case Number", "Date", "Time", "Incident Type", "Incident", "Police Grid", "Neighborhood Name", "Block"];
+        for(var i = 0; i < header_names.length; i++) {
+            var th = document.createElement("th");
+            th.appendChild(document.createTextNode(header_names[i]));
+            row.appendChild(th);
+        }
+
+        body.appendChild(tbl);
+        // End Making the table
+
+        // Markers
+        for(var i = 0; i < 17; i++) {
+            // This is to initalize the marker
+            neighborhood_markers[i]["marker"] = L.marker(neighborhood_markers[i]["location"]).addTo(map); 
+            // Pop Up
+            neighborhood_markers[i]["marker"].bindPopup("There were " + neighborhood_num_crimes[i] + " incidents committed<br>in this neighborhood.").openPopup();
+        }
+    }).catch((error) => {
+        console.log('Error:', error);
+    });
+}
