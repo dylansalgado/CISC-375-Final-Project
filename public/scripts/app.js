@@ -360,28 +360,18 @@ function filterUI(event) {
     var filterUI = new Vue({
         el: '#filterUI',
         data: {
-            code: {
-                entries: codes_dict,
-                checkedCodes: []
-            },
-            neighborhood: {
-                checkedNeighborhoods: [],
-                neighborhoods: neighborhood_list
-            },
-            date: {
-                start_date: '',
-                end_date: ''
-            },
-            limit: {
-                limit_filter: ''
-            }
+            checkedCodes: [],
+            checkedNeighborhoods: [],
+            start_date: '',
+            end_date: '',
+            limit_filter: ''
         },
         methods: {
             "OnSubmit": function OnSubmit() {
                 var url = 'http://localhost:8000/incidents?'
                 var flag = false;
 
-                if(checkedCodes.length != 0) {
+                if(this.checkedCodes.length != 0) {
                     flag = true;
                     url = url + 'code=' + checkedCodes[0];
                     for(var i = 1; i < checkedCodes.length; i++) {
