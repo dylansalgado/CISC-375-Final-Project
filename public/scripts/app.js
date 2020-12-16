@@ -113,10 +113,12 @@ function init() {
     }).catch((error) => {
         console.log('Error:', error);
     });
-
+    console.log(district_boundary);
     // Location lookup button
     var lookup_button = document.getElementById("lookup");
+    var UI_button = document.getElementById("submit");
     lookup_button.addEventListener("click", geoLocate, false);
+    UI_button.addEventListener("click", filterUI, false)
 
 }
 
@@ -333,7 +335,11 @@ function retrieveData(url) {
     });
 }
 
-function filterUI(neighborhood_list) {
+function filterUI(event) {
+    console.log("IN FILTERUI, NEIGHBORHOOD LIST INBOUND");
+    console.log(event);
+    var neighborhood_list = document.getElementById("neighborhoodUIList");
+    console.log(neighborhood_list);
     var codes_dict = [
         { id: 1, name: "Murder", code: [110, 120] },
         { id: 2, name: "Rape", code: [210, 220] },
@@ -416,5 +422,6 @@ function filterUI(neighborhood_list) {
             }
         }
     });
+    console.log(filterUI);
     
 }
