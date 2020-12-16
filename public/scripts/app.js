@@ -77,6 +77,8 @@ function init() {
             'currentHeight: ' + currentHeight +'\n'+
             'currentBounds: ' + currentBounds + '\n'
         );
+
+        
             
     });
 
@@ -91,7 +93,7 @@ function init() {
                 [map.getBounds().getSouth(), map.getBounds().getEast()]
             ]
         );
-    
+
         console.log(
             'center: ' + map.getCenter() +'\n'+
             'currentWidth: ' + currentWidth +'\n'+
@@ -213,10 +215,13 @@ function getJSON(url) {
     });
 }
 
-function retrieveData() {
+function retrieveData(url) {
     // Get Incidents
+    var url1 = url;
+    var url2 = 'http://localhost:8000/codes';
+    var url3 = 'http://localhost:8000/neighborhoods';
 
-    Promise.all([getJSON('http://localhost:8000/incidents'), getJSON('http://localhost:8000/codes'), getJSON('http://localhost:8000/neighborhoods')]).then((result) => {
+    Promise.all([getJSON(url1), getJSON(url2), getJSON(url3)]).then((result) => {
         var data = result[0];
         var codes = result[1];
         var neighborhoods = result[2];
@@ -326,4 +331,91 @@ function retrieveData() {
     }).catch((error) => {
         console.log('Error:', error);
     });
+}
+
+function filterUI(neighborhood_list) {
+    var codes_dict = [
+        { id: 1, name: "Murder", code: [110, 120] },
+        { id: 2, name: "Rape", code: [210, 220] },
+        { id: 3, name: "Robery", code: [300, 311, 312, 313, 314, 321, 322, 323, 324, 331, 333, 334, 341, 342, 343, 351, 352, 353, 354, 361, 363, 371, 372, 373, 374] },
+        { id: 4, name: "Aggravated Assault", code: [400, 410, 411, 412, 420, 421, 422, 430, 431, 432, 440, 441, 442, 450, 451, 452, 453] },
+        { id: 5, name: "Burglary", code: [5653, 500, 510, 513, 515, 516, 520, 521, 523, 525, 526, 530, 531, 533, 535, 536, 540, 541, 543, 545, 546, 550, 551, 553, 555, 556, 560, 561, 565, 566] },
+        { id: 6, name: "Theft", code: [600, 603, 611, 612, 613, 614, 621, 622, 623, 630, 631, 632, 633, 640, 641, 642, 643, 651, 652, 653, 661, 662, 663, 671, 672, 673, 681, 682, 683, 691, 692, 693] },
+        { id: 7, name: "Moto Vehicle Theft", code: [700, 710, 711, 712, 720, 721, 722] },
+        { id: 8, name: "Assault", code: [810, 861, 862, 863]},
+        { id: 9, name: "Arson", code: [900, 901, 903, 905, 911, 913, 915, 921, 923, 931, 933, 941, 942, 951, 961, 971, 972, 981, 982] },
+        { id: 10, name: "Graffiti", code: [1400, 1401, 1410, 1415, 1416, 1420, 1425, 1426, 1430, 1435, 1436] },
+        { id: 11, name: "Weapons Discharging", code: [1800, 2619] },
+        { id: 12, name: "Narcotics", code: [1810, 1811, 1812, 1813, 1814, 1815, 1820, 1822, 1823, 1824, 1825, 1830, 1835, 1840, 1841, 1842, 1843, 1844, 1845, 1850, 1855, 1860, 1865, 1870, 1880, 1885] },
+        { id: 13, name: "Proative Police Visit", code: [9954]},
+        { id: 14, name: "Community Engagement", code: [9959]}
+    ];
+
+    var filterUI = new Vue({
+        el: '#filterUI',
+        data: {
+            code: {
+                entries: codes_dict,
+                checkedCodes: []
+            },
+            neighborhood: {
+                checkedNeighborhoods: [],
+                neighborhoods: neighborhood_list
+            },
+            date: {
+                start_date: '',
+                end_date: ''
+            },
+            limit: {
+                limit_filter: ''
+            }
+        },
+        methods: {
+            "OnSubmit": function OnSubmit() {
+                var url = 'http://localhost:8000/incidents?'
+                var flag = false;
+
+                if(checkedCodes.length != 0) {
+                    flag = true;
+                    url = url + 'code=' + checkedCodes[0];
+                    for(var i = 1; i < checkedCodes.length; i++) {
+                        url = url + ',' + checkedCodes[i];
+                    }
+                }
+                if(checkedNeighborhoods.length != 0) {
+                    if(flag) {
+                        url = url + '&';
+                    }
+                    flag = true;
+                    url = url + 'neighborhood_number=' + checkedNeighborhoods;
+                    for(var i = 1; i < checkedNeighborhoods.length; i++) {
+                        url = url + ',' + checkedNeighborhoods[i];
+                    }
+                }
+                if(start_date.length != 0) {
+                    if(flag) {
+                        url = url + '&';
+                    }
+                    flag = true;
+                    url = url + 'start_date=' + start_date;
+                }
+                if(end_date.length != 0) {
+                    if(flag) {
+                        url = url + '&';
+                    }
+                    flag = true;
+                    url = url + 'end_date=' + end_date;
+                }
+                if(limit.length != 0) {
+                    if(flag) {
+                        url = url + '&';
+                    }
+                    url = url + 'limit=' + limit_filter;
+                }
+                retrieveData(url);
+                console.log("hello");
+            }
+        }
+    });
+    
 }

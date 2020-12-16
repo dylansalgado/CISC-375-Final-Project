@@ -206,6 +206,8 @@ app.get('/incidents', (req, res) => {
         //Different param options
         let start_date;
         let end_date;
+        let start_time = "0:00";
+        let end_time = "23:59";
         let code; //This could be a list
         let grid; //This could be a list
         let neighborhood; //This could be a list
@@ -240,7 +242,11 @@ app.get('/incidents', (req, res) => {
 
             } else if(list_of_params[i].split("=")[0] == "limit") {
                 limit = list_of_params[i].split("=")[1];
-            }
+            }/* else if(list_of_params[i].split("=")[0] == "start_time") {
+                start_time = list_of_params[i].split("=")[1];
+            } else if(list_of_params[i].split("=")[0] == "end_time") {
+                end_time = list_of_params[i].split("=")[1];
+            }*/
         }
 
         //Check to see if there are multiple inputs for certain categories
@@ -377,12 +383,15 @@ app.get('/incidents', (req, res) => {
             }
         }
 
+        if(params_list.length == 0) {
+            query = "SELECT * FROM Incidents"
+        }
+
         if(limit) {
             query = query + " ORDER BY date DESC LIMIT " + limit;
         }
         
-        console.log(query);
-        console.log(params_list);
+        
         //Clear the json
         incidents_json = [];
         db.all(query, params_list, (err, rows) => {
@@ -413,8 +422,11 @@ app.get('/incidents', (req, res) => {
                     if(String(incidents_json[i]["time"]).includes("T")){
                         //split on T
                         time_temp = String(incidents_json[i]["time"].split("T")[1]);
-
+                        //if((time_temp > start_time) && (time_temp < end_time)) {
                         incidents_json[i]["time"] = time_temp[1];
+                        //} else {
+                            //incidents_json.splice(i, 1);
+                        //}
                     }
                 }
 

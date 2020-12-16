@@ -7,6 +7,33 @@
     height: 600px; /* feel free to change this! */
 }
 
+#form {
+    margin: auto;
+    width: auto;
+}
+
+
+#codeFilterUI {
+    float: left;
+    width: 20rem;
+    align-content: center;
+}
+
+#neighborhoodFilterUI {
+    width: 20rem;
+    float: left;
+    align-content: center;
+}
+
+#dateFilterUI {
+    display: inline;
+    width: 25rem;
+    display: inline;
+}
+#submit {
+    clear: left;
+}
+
 /* Table style Part */
 
 table {
