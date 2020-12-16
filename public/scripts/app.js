@@ -412,8 +412,7 @@ function filterUI(neighborhood_list) {
                     }
                     url = url + 'limit=' + limit_filter;
                 }
-                retrieveData(url);
-                console.log("hello");
+                return retrieveData(url);
             }
         }
     });
