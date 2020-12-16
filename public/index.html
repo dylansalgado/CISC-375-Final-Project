@@ -46,8 +46,8 @@
 
         
 
-    </div>
-
+    
+    
     <form id="filterUI">
         <div id="form">
             <div id="codeFilterUI">
@@ -56,48 +56,48 @@
                         <b>Codes:</b>
                         </div>
                         <ul>
-                            <div><input type="checkbox" id="Murder" value="1" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Murder" value="1" v-model="filterUI.checkedCodes">
                             <label for="Murder">Murder</label></div>
 
-                            <div><input type="checkbox" id="Rape" value="2" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Rape" value="2" v-model="filterUI.checkedCodes">
                             <label for="Rape">Rape</label></div>
 
-                            <div><input type="checkbox" id="Robery" value="3" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Robery" value="3" v-model="filterUI.checkedCodes">
                             <label for="Robery">Robery</label></div>
 
-                            <div><input type="checkbox" id="Aggravated Assault" value="4" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Aggravated Assault" value="4" v-model="filterUI.checkedCodes">
                             <label for="Aggravated Assault">Aggravated Assault</label></div>
 
-                            <div><input type="checkbox" id="Burglary" value="5" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Burglary" value="5" v-model="filterUI.checkedCodes">
                             <label for="Burglary">Burglary</label></div>
 
-                            <div><input type="checkbox" id="Theft" value="6" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Theft" value="6" v-model="filterUI.checkedCodes">
                             <label for="Theft">Theft</label></div>
 
-                            <div><input type="checkbox" id="Moto Vehicle Theft" value="7" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Moto Vehicle Theft" value="7" v-model="filterUI.checkedCodes">
                             <label for="Moto Vehicle Theft">Moto Vehicle Theft</label></div>
 
-                            <div><input type="checkbox" id="Assault" value="8" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Assault" value="8" v-model="filterUI.checkedCodes">
                             <label for="Assault">Assault</label></div>
 
-                            <div><input type="checkbox" id="Arson" value="9" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Arson" value="9" v-model="filterUI.checkedCodes">
                             <label for="Arson">Arson</label></div>
 
-                            <div><input type="checkbox" id="Graffiti" value="10" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Graffiti" value="10" v-model="filterUI.checkedCodes">
                             <label for="Graffiti">Graffiti / Damage to Propterty</label></div>
 
-                            <div><input type="checkbox" id="Weapons Discharging" value="11" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Weapons Discharging" value="11" v-model="filterUI.checkedCodes">
                             <label for="Weapons Discharging">Weapons Discharging</label></div>
 
-                            <div><input type="checkbox" id="Narcotics" value="12" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Narcotics" value="12" v-model="filterUI.checkedCodes">
                             <label for="Narcotics">Narcotics</label></div>
 
-                            <div><input type="checkbox" id="Proative Police Visit" value="13" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Proative Police Visit" value="13" v-model="filterUI.checkedCodes">
                             <label for="Proative Police Visit">Proative Police Visit</label></div>
 
-                            <div><input type="checkbox" id="Community Engagement" value="14" v-model="checkedCodes">
+                            <div><input type="checkbox" id="Community Engagement" value="14" v-model="filterUI.checkedCodes">
                             <label for="Community Engagement">Community Engagement</label></div>
-                            <span>Checked: {{ checkedCodes }}</span>
+                            <span>Checked: {{ filterUI.checkedCodes }}</span>
                         </ul>
                     </div>
             </div>
@@ -107,57 +107,57 @@
                     <b>Neighborhoods:</b>
                     </div>
                     <ul>
-                        <div><input type="checkbox" id="1" value="1" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="1" value="1" v-model="filterUI.checkedNeighborhoods">
                             <label for="1">Conway / Battlecreek / Highwood</label></div>
-                        <div><input type="checkbox" id="2" value="2" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="2" value="2" v-model="filterUI.checkedNeighborhoods">
                             <label for="2">Greater East Side</label></div>
-                        <div><input type="checkbox" id="3" value="3" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="3" value="3" v-model="filterUI.checkedNeighborhoods">
                             <label for="3">West Side</label></div>
-                        <div><input type="checkbox" id="4" value="4" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="4" value="4" v-model="filterUI.checkedNeighborhoods">
                             <label for="4">Dayton's Bluff</label></div>
-                        <div><input type="checkbox" id="5" value="5" v-model="checkedNeighborhoods">
-                            <label for="5">Payne/Phalen</label></div>
-                        <div><input type="checkbox" id="6" value="6" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="5" value="5" v-model="filterUI.checkedNeighborhoods">
+                            <label for="5">Payne / Phalen</label></div>
+                        <div><input type="checkbox" id="6" value="6" v-model="filterUI.checkedNeighborhoods">
                             <label for="6">North End</label></div>
-                        <div><input type="checkbox" id="7" value="7" v-model="checkedNeighborhoods">
-                            <label for="7">Thomas/Dale(Frogtown)</label></div>
-                        <div><input type="checkbox" id="8" value="8" v-model="checkedNeighborhoods">
-                            <label for="8">Summit/University</label></div>
-                        <div><input type="checkbox" id="9" value="9" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="7" value="7" v-model="filterUI.checkedNeighborhoods">
+                            <label for="7">Thomas / Dale (Frogtown)</label></div>
+                        <div><input type="checkbox" id="8" value="8" v-model="filterUI.checkedNeighborhoods">
+                            <label for="8">Summit / University</label></div>
+                        <div><input type="checkbox" id="9" value="9" v-model="filterUI.checkedNeighborhoods">
                             <label for="9">West Seventh</label></div>
-                        <div><input type="checkbox" id="10" value="10" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="10" value="10" v-model="filterUI.checkedNeighborhoods">
                             <label for="10">Como</label></div>
-                        <div><input type="checkbox" id="11" value="11" v-model="checkedNeighborhoods">
-                            <label for="11">Hamline/Midway</label></div>
-                        <div><input type="checkbox" id="12" value="12" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="11" value="11" v-model="filterUI.checkedNeighborhoods">
+                            <label for="11">Hamline / Midway</label></div>
+                        <div><input type="checkbox" id="12" value="12" v-model="filterUI.checkedNeighborhoods">
                             <label for="12">St. Anthony</label></div>
-                        <div><input type="checkbox" id="13" value="13" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="13" value="13" v-model="filterUI.checkedNeighborhoods">
                             <label for="13">Union Park</label></div>
-                        <div><input type="checkbox" id="14" value="14" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="14" value="14" v-model="filterUI.checkedNeighborhoods">
                             <label for="14">Macalester-Groveland</label></div>
-                        <div><input type="checkbox" id="15" value="15" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="15" value="15" v-model="filterUI.checkedNeighborhoods">
                             <label for="15">Highland</label></div>
-                        <div><input type="checkbox" id="16" value="16" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="16" value="16" v-model="filterUI.checkedNeighborhoods">
                             <label for="16">Summit Hill</label></div>
-                        <div><input type="checkbox" id="17" value="17" v-model="checkedNeighborhoods">
+                        <div><input type="checkbox" id="17" value="17" v-model="filterUI.checkedNeighborhoods">
                             <label for="17">Capitol River</label></div>
-                        <span>Checked: {{ checkedNeighborhoods }}</span>
+                        <span>Checked: {{ filterUI.checkedNeighborhoods }}</span>
                     </ul>
                 </div>
             </div>
             <div id="dateFilterUI">
                 <span><b>Starting Date:</b></span>
-                <input v-model="start_date" placeholder="12-12-2020">
-                <p>You entered: {{ start_date }}</p>
+                <input v-model="filterUI.start_date" placeholder="2020-12-12">
+                <p>You entered: {{ filterUI.start_date }}</p>
 
                 <span><b>Ending Date:</b></span>
-                <input v-model="end_date" placeholder="12-12-2020">
-                <p>You entered: {{ end_date }}</p>
+                <input v-model="filterUI.end_date" placeholder="2020-12-12">
+                <p>You entered: {{ filterUI.end_date }}</p>
             </div>
             <div id="limitFilterUI">
                 <span><b>Limit:</b></span>
-                <input v-model="limit_filter" placeholder="1000">
-                <p>You entered: {{ limit_filter }}</p>
+                <input v-model="filterUI.limit_filter" placeholder="1000">
+                <p>You entered: {{ filterUI.limit_filter }}</p>
             </div>
         </div>
         <center>
@@ -173,7 +173,7 @@
             <thead>
                 <tr>
                     <th v-for="col in columns" v-on:click="sortTable(col)">
-                        {{col}} <div class="arrow" v-if="col == sortColumn" v-bind:class="[ascending ? 'arrow_up' : 'arrow_down']"></div>
+                        {{col}} <div class="arrow" v-if="col == table.sortColumn" v-bind:class="[table.ascending ? 'arrow_up' : 'arrow_down']"></div>
                     </th>
                 </tr>
             </thead>
@@ -188,7 +188,7 @@
         <div class="pagination">
             <div class="number"
                  v-for="i in num_pages()"
-                 v-bind:class="[i == currentPage ? 'active' : '']"
+                 v-bind:class="[i == table.currentPage ? 'active' : '']"
                  v-on:click="change_page(i)">{{i}}
             </div>
         </div>
@@ -196,6 +196,6 @@
     </div>
 
     </div>
-    
+</div>
 </body>
 </html>

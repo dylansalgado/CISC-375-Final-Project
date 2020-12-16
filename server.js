@@ -43,7 +43,6 @@ app.get('/codes', (req, res) => {
         //If there are multiple codes, get all the codes
         if(url_flags.includes(",")) {
             list_of_codes = url_flags.split(",");
-            console.log(list_of_codes);
         } else {
             list_of_codes = url_flags;
         }
@@ -112,7 +111,6 @@ app.get('/neighborhoods', (req, res) => {
         //If there are multiple codes, get all the codes
         if(url_flags.includes(",")) {
             list_of_ids = url_flags.split(",");
-            console.log(list_of_ids);
         } else {
             list_of_ids = url_flags;
         }
@@ -282,15 +280,15 @@ app.get('/incidents', (req, res) => {
             if(end_date) {
                 query = query + " (";
             }
-            query = query + " date >= ?";
+            query = query + " DATE(date_time) >= ?";
             params_list.push(start_date);
         }
 
         if(end_date) {
             if(params_list.length == 0) {
-                query = query + " date <= ?";
+                query = query + " DATE(date_time) <= ?";
             } else {
-                query = query + " AND date <= ? )";
+                query = query + " AND DATE(date_time) <= ? )";
             }
             params_list.push(end_date);
         }
@@ -306,7 +304,10 @@ app.get('/incidents', (req, res) => {
                 }
 
                 for(i; i < code.length; i++) {
-                    query = query + " OR code = ?)";
+                    query = query + " OR code = ?";
+                }
+                if(code.length > 1) {
+                    query = query + ')';
                 }
             } else {
                 let i = 1;
@@ -317,7 +318,10 @@ app.get('/incidents', (req, res) => {
                 }
 
                 for(i; i < code.length; i++) {
-                    query = query + " OR code = ?)";
+                    query = query + " OR code = ?";
+                }
+                if(code.length > 1) {
+                    query = query + ')';
                 }
             }
             let i = 0;
@@ -335,7 +339,10 @@ app.get('/incidents', (req, res) => {
                     query = query + " police_grid = ?";
                 }
                 for(i; i < grid.length; i++) {
-                    query = query + " OR police_grid = ?)";
+                    query = query + " OR police_grid = ?";
+                }
+                if(grid.length > 1) {
+                    query = query + ')';
                 }
             } else {
                 let i = 1;
@@ -345,7 +352,10 @@ app.get('/incidents', (req, res) => {
                     query = query + " AND police_grid = ?";
                 }
                 for(i; i < grid.length; i++) {
-                    query = query + " OR police_grid = ?)";
+                    query = query + " OR police_grid = ?";
+                }
+                if(grid.length > 1) {
+                    query = query + ')';
                 }
             }
             let i = 0;
@@ -363,7 +373,10 @@ app.get('/incidents', (req, res) => {
                     query = query + " (neighborhood_number = ?";
                 }
                 for(i; i < neighborhood.length; i++) {
-                    query = query + " OR neighborhood_number = ?)";
+                    query = query + " OR neighborhood_number = ?";
+                }
+                if(neighborhood.length > 1) {
+                    query = query + ')';
                 }
             } else {
                 let i = 1;
@@ -374,7 +387,10 @@ app.get('/incidents', (req, res) => {
                 }
 
                 for(i; i < neighborhood.length; i++) {
-                    query = query + " OR neighborhood_number = ?)";
+                    query = query + " OR neighborhood_number = ?";
+                }
+                if(neighborhood.length > 1) {
+                    query = query + ')';
                 }
             }
             let i = 0;
@@ -388,9 +404,8 @@ app.get('/incidents', (req, res) => {
         }
 
         if(limit) {
-            query = query + " ORDER BY date DESC LIMIT " + limit;
+            query = query + " ORDER BY date_time DESC LIMIT " + limit;
         }
-        
         
         //Clear the json
         incidents_json = [];
@@ -417,6 +432,7 @@ app.get('/incidents', (req, res) => {
                 */
                 incidents_json = rows;
                 // split on T, will have to loop through the json
+                /*
                 var i = 0;
                 for(i; i < incidents_json.length; i++) {
                     if(String(incidents_json[i]["time"]).includes("T")){
@@ -428,7 +444,7 @@ app.get('/incidents', (req, res) => {
                             //incidents_json.splice(i, 1);
                         //}
                     }
-                }
+                }*/
                 //Do date filter here
 
                 res.status(200).type('json');
@@ -440,7 +456,7 @@ app.get('/incidents', (req, res) => {
         //Clear the json
         incidents_json = [];
         //Default query
-        db.all("SELECT * FROM Incidents WHERE date LIKE '%2020' ORDER BY date DESC, time DESC LIMIT 1000", req.params, (err, rows) => {
+        db.all("SELECT * FROM Incidents ORDER BY date_time DESC LIMIT 1000", req.params, (err, rows) => {
             if(err) {
                 res.status(404).type("Error");
                 res.write("Error executing SQL query");
@@ -494,7 +510,6 @@ app.put('/new-incident', (req, res) => {
                 //This case number is not in the database
                 var case_number_add;
                 var date_add;
-                var time_add;
                 var code_add;
                 var incident_add;
                 var police_grid_add;
@@ -526,10 +541,8 @@ app.put('/new-incident', (req, res) => {
                 for(i; i < params.length; i++) {
                     if(params[i].split("=")[0] == "case_number") {
                         case_number_add = params[i].split("=")[1];
-                    } else if(params[i].split("=")[0] == "date") {
+                    } else if(params[i].split("=")[0] == "date_time") {
                         date_add = params[i].split("=")[1];
-                    } else if(params[i].split("=")[0] == "time") {
-                        time_add = params[i].split("=")[1];
                     } else if(params[i].split("=")[0] == "code") {
                         code_add = params[i].split("=")[1];
                     } else if(params[i].split("=")[0] == "incident") {
@@ -549,7 +562,7 @@ app.put('/new-incident', (req, res) => {
                 db.collection.insert(
                     {
                         "case_number": case_number_add,
-                        "date": date_add,
+                        "date_time": date_add,
                         "time": time_add,
                         "code": code_add,
                         "incident": incident_add,
