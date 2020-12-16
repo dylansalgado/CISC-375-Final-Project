@@ -429,6 +429,7 @@ app.get('/incidents', (req, res) => {
                         //}
                     }
                 }
+                //Do date filter here
 
                 res.status(200).type('json');
                 res.status(200).type('json').send(incidents_json);
