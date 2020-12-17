@@ -5,6 +5,7 @@ let path = require('path');
 let express = require('express');
 let sqlite3 = require('sqlite3');
 const { start } = require('repl');
+const e = require('express');
 
 
 let app = express();
@@ -204,8 +205,8 @@ app.get('/incidents', (req, res) => {
         //Different param options
         let start_date;
         let end_date;
-        let start_time = "0:00";
-        let end_time = "23:59";
+        let start_time;
+        let end_time;
         let code; //This could be a list
         let grid; //This could be a list
         let neighborhood; //This could be a list
@@ -229,6 +230,12 @@ app.get('/incidents', (req, res) => {
             } else if(list_of_params[i].split("=")[0] == "end_date") {
                 end_date = list_of_params[i].split("=")[1];
 
+            } else if(list_of_params[i].split("=")[0] == "start_time") {
+                start_time = list_of_params[i].split("=")[1];
+
+            } else if(list_of_params[i].split("=")[0] == "end_time") {
+                end_time = list_of_params[i].split("=")[1];
+
             } else if(list_of_params[i].split("=")[0] == "code") {
                 code = list_of_params[i].split("=")[1];
 
@@ -240,11 +247,7 @@ app.get('/incidents', (req, res) => {
 
             } else if(list_of_params[i].split("=")[0] == "limit") {
                 limit = list_of_params[i].split("=")[1];
-            }/* else if(list_of_params[i].split("=")[0] == "start_time") {
-                start_time = list_of_params[i].split("=")[1];
-            } else if(list_of_params[i].split("=")[0] == "end_time") {
-                end_time = list_of_params[i].split("=")[1];
-            }*/
+            }
         }
 
         //Check to see if there are multiple inputs for certain categories
@@ -291,6 +294,22 @@ app.get('/incidents', (req, res) => {
                 query = query + " AND DATE(date_time) <= ? )";
             }
             params_list.push(end_date);
+        }
+
+        if(start_time) {
+            if(params_list.length != 0) {
+                query = query + " AND";
+            }
+            query = query + " TIME(date_time) >= ?";
+            params_list.push(start_time);
+        }
+
+        if(end_time) {
+            if(params_list.length != 0) {
+                query = query + " AND";
+            }
+            query = query + " TIME(date_time) <= ?";
+            params_list.push(end_time);
         }
 
         if(code) {

@@ -25,7 +25,7 @@
     <script type="application/javascript" src="scripts/app.js"></script>
     <!-- End: Application -->
 </head>
-<body onload="init(), filterUI(), retrieveData('http://localhost:8000/incidents')">
+<body onload="init(), retrieveData('http://localhost:8000/incidents')">
     <p>
         <a href=about.html>About the project</a>
     </p>
@@ -146,16 +146,24 @@
                 </div>
             </div>
             <div id="dateFilterUI">
-                <span><b>Starting Date:</b></span>
+                <span><b>Starting Date:<br></b></span>
                 <input v-model="filterUI.start_date" placeholder="2020-12-12">
                 <p>You entered: {{ filterUI.start_date }}</p>
 
-                <span><b>Ending Date:</b></span>
+                <span><b>Ending Date:<br></b></span>
                 <input v-model="filterUI.end_date" placeholder="2020-12-12">
                 <p>You entered: {{ filterUI.end_date }}</p>
+
+                <span><b>Start Time:<br></b></span>
+                <input v-model="filterUI.start_time" placeholder="00:00">
+                <p>You entered: {{ filterUI.start_time }}</p>
+
+                <span><b>End Time:<br></b></span>
+                <input v-model="filterUI.end_time" placeholder="00:00">
+                <p>You entered: {{ filterUI.end_time }}</p>
             </div>
             <div id="limitFilterUI">
-                <span><b>Limit:</b></span>
+                <span><b>Limit:<br></b></span>
                 <input v-model="filterUI.limit_filter" placeholder="1000">
                 <p>You entered: {{ filterUI.limit_filter }}</p>
             </div>

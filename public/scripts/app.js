@@ -68,6 +68,8 @@ var checkedNeighborhoods = [];
 var start_date = '';
 var end_date = '';
 var limit_filter = '';
+var start_time;
+var end_time;
 
 function init() {
     let crime_url = 'http://localhost:8000';
@@ -99,7 +101,9 @@ function init() {
                 checkedNeighborhoods: [],
                 start_date: '',
                 end_date: '',
-                limit_filter: ''
+                limit_filter: '',
+                start_time: '',
+                end_time: ''
             },
         },
         methods: {
@@ -134,6 +138,7 @@ function init() {
                         url = url + ',' + this.filterUI.checkedNeighborhoods[i];
                     }
                 }
+
                 if(this.filterUI.start_date.length != 0) {
                     if(flag) {
                         url = url + '&';
@@ -141,6 +146,7 @@ function init() {
                     flag = true;
                     url = url + 'start_date=' + this.filterUI.start_date;
                 }
+
                 if(this.filterUI.end_date.length != 0) {
                     if(flag) {
                         url = url + '&';
@@ -148,12 +154,30 @@ function init() {
                     flag = true;
                     url = url + 'end_date=' + this.filterUI.end_date;
                 }
+
+                if(this.filterUI.start_time.length != 0) {
+                    if(flag) {
+                        url = url + '&';
+                    }
+                    flag = true;
+                    url = url + 'start_time=' + this.filterUI.start_time + ':00.000';
+                }
+
+                if(this.filterUI.end_time.length != 0) {
+                    if(flag) {
+                        url = url + '&';
+                    }
+                    flag = true;
+                    url = url + 'end_time=' + this.filterUIend_time + ':00.000';
+                }
+
                 if(this.filterUI.limit_filter.length != 0) {
                     if(flag) {
                         url = url + '&';
                     }
                     url = url + 'limit=' + this.filterUI.limit_filter;
                 }
+
                 retrieveData(url);
             },
             
@@ -401,9 +425,11 @@ function retrieveData(url) {
         url2 = url2 + "?code=" + code_codes;
         
     }
+
     console.log(url1);
     console.log(url2);
     console.log(url3);
+
     Promise.all([getJSON(url1), getJSON(url2), getJSON(url3)]).then((result) => {
         var data = result[0];
         var codes = result[1];
@@ -431,7 +457,7 @@ function retrieveData(url) {
                         }
                     }
                 } else if(headers[j] == "neighborhood_number") {
-                    neighborhood_num_crimes[data[i]["neighborhood_number"]]++;
+                    neighborhood_num_crimes[data[i]["neighborhood_number"] - 1]++;
                     var iterator = 0;
                     for(iterator; iterator < neighborhoods.length; iterator++) {
                         if(neighborhoods[iterator]["id"] == data[i]["neighborhood_number"]) {
@@ -463,14 +489,4 @@ function retrieveData(url) {
     }).catch((error) => {
         console.log('Error:', error);
     });
-}
-
-function filterUI(event) {
-    console.log("IN FILTERUI, NEIGHBORHOOD LIST INBOUND");
-    console.log(event);
-    var neighborhood_list = document.getElementById("neighborhoodUIList");
-
-    
-
-    
 }
