@@ -46,7 +46,7 @@ let neighborhood_corners =
     }, // Payne / Phalen
     {
         northEast: [44.991858489918506, -93.08868206981091],
-        southWest: [44.96305276688401, 93.12628722942853]
+        southWest: [44.96305276688401, -93.12628722942853]
     }, // North End
     {
         northEast: [44.96746110429428, -93.09085886089726],
@@ -363,7 +363,6 @@ function init() {
     // District bounds
     let district_boundary = new L.geoJson();
     district_boundary.addTo(map);
-    console.log("hello");
     console.log(district_boundary);
     getJSON('data/StPaulDistrictCouncil.geojson').then((result) => {
         // St. Paul GeoJSON
@@ -574,7 +573,7 @@ function retrieveData(url) {
             // This is to initalize the marker
             neighborhood_markers[i]["marker"] = L.marker(neighborhood_markers[i]["location"]).addTo(map); 
             // Pop Up
-            neighborhood_markers[i]["marker"].bindPopup("There were " + neighborhood_num_crimes[i] + " incidents committed<br>in " + name + ".").openPopup();
+            neighborhood_markers[i]["marker"].bindPopup("There were " + neighborhood_num_crimes[i] + " incidents committed<br>in " + name + ".");
         }
     }).catch((error) => {
         console.log('Error:', error);
@@ -601,7 +600,7 @@ function crimeMarkers(data_input) {
                 temp_block = data_input[i]["Block"];
             }*/
             temp_block = data_input[i]["Block"].replaceAll("X", "0");
-            temp_block_string = "On " + data_input[i]["Date / Time"].split("T")[0] + " at " + data_input[i]["Date / Time"].split("T")[1] + " a " + data_input[i]["Incident"] + " occured";
+            temp_block_string = "On " + data_input[i]["Date / Time"].split("T")[0] + " at " + data_input[i]["Date / Time"].split("T")[1] + " a " + data_input[i]["Incident"] + " occured.  ";
 
             url = 'https://nominatim.openstreetmap.org/search?q=' + temp_block +
                 '&format=json&limit=25&accept-language=en';
@@ -669,14 +668,27 @@ function mapChangeTable(currentBounds) {
         var north = neighborhood_corners[i]["northEast"][0];
         var east = neighborhood_corners[i]["northEast"][1];
         var south = neighborhood_corners[i]["southWest"][0];
-        var west = neighborhood_corners[i]["southWest"][0]
-        if(((north > s) && (north < n)) || ((south > s) && (south < n)) || ((east < e) && (east > w)) || ((west < e) && (west > w))) {
+        var west = neighborhood_corners[i]["southWest"][1]
+        if( (north > s) && (north < n) && ( ((west < w) && (east > e)) || ((west > w) && (west < e) || ((east > w) && (east < e)) ) ) ) {
             neighborhoods_in.push(i + 1);
+        } else if( (south > s) && (south < n) && ( ((west < w) && (east > e)) || ((west > w) && (west < e) || ((east > w) && (east < e)) ) ) ) {
+            neighborhoods_in.push(i + 1);
+        } else if ( (east < e) && (east > w) && ( ((north > n) && (south < s)) || ((north < n) && (north > s) || ((south > s) && (south < n)) ) ) ) {
+            neighborhoods_in.push(i + 1);
+        } else if ( (west < e) && (west > w) && ( ((north > n) && (south < s)) || ((north < n) && (north > s) || ((south > s) && (south < n)) ) ) ) {
+            neighborhoods_in.push(i + 1);
+        } else if ((north > n) && (south < s) && (east > e) && (west < w) ) {
+            neighborhoods_in.push(i + 1);
+            console.log(i+1);
         }
     }
     var url = 'http://localhost:8000/incidents?neighborhood_number=' + neighborhoods_in[0];
     for(var i = 1; i < neighborhoods_in.length; i++) {
         url = url + ',' + neighborhoods_in[i];
     }
-    retrieveData(url);
+    if(neighborhoods_in.length == 17) {
+        retrieveData('http://localhost:8000/incidents');
+    } else {
+        retrieveData(url);
+    }
 }
