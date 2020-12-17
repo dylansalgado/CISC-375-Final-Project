@@ -32,8 +32,8 @@ var codes_dict = [
     { id: 8, name: "Assault", code: [810, 861, 862, 863]},
     { id: 9, name: "Arson", code: [900, 901, 903, 905, 911, 913, 915, 921, 923, 931, 933, 941, 942, 951, 961, 971, 972, 981, 982] },
     { id: 10, name: "Graffiti", code: [1400, 1401, 1410, 1415, 1416, 1420, 1425, 1426, 1430, 1435, 1436] },
-    { id: 11, name: "Weapons Discharging", code: [1800, 2619] },
-    { id: 12, name: "Narcotics", code: [1810, 1811, 1812, 1813, 1814, 1815, 1820, 1822, 1823, 1824, 1825, 1830, 1835, 1840, 1841, 1842, 1843, 1844, 1845, 1850, 1855, 1860, 1865, 1870, 1880, 1885] },
+    { id: 11, name: "Weapons Discharging", code: [2619] },
+    { id: 12, name: "Narcotics", code: [1800, 1810, 1811, 1812, 1813, 1814, 1815, 1820, 1822, 1823, 1824, 1825, 1830, 1835, 1840, 1841, 1842, 1843, 1844, 1845, 1850, 1855, 1860, 1865, 1870, 1880, 1885] },
     { id: 13, name: "Proative Police Visit", code: [9954]},
     { id: 14, name: "Community Engagement", code: [9959]}
 ];
@@ -70,6 +70,7 @@ var end_date = '';
 var limit_filter = '';
 var start_time;
 var end_time;
+var access_data_complete;
 
 function init() {
     let crime_url = 'http://localhost:8000';
@@ -250,7 +251,7 @@ function init() {
                 [map.getBounds().getSouth(), map.getBounds().getEast()]
             ]
         );
-    
+        
         console.log(
             'center: ' + map.getCenter() +'\n'+
             'currentWidth: ' + currentWidth +'\n'+
@@ -273,7 +274,8 @@ function init() {
                 [map.getBounds().getSouth(), map.getBounds().getEast()]
             ]
         );
-
+        
+        
         console.log(
             'center: ' + map.getCenter() +'\n'+
             'currentWidth: ' + currentWidth +'\n'+
@@ -285,6 +287,8 @@ function init() {
     // District bounds
     let district_boundary = new L.geoJson();
     district_boundary.addTo(map);
+    console.log("hello");
+    console.log(district_boundary);
     getJSON('data/StPaulDistrictCouncil.geojson').then((result) => {
         // St. Paul GeoJSON
         $(result.features).each(function(key, value) {
@@ -314,10 +318,12 @@ function geoLocate(event) {
     if (event.type === "click") {   
         var req1_data;
         var req1 = getJSON(url);
+        console.log(req1);
         var req2 = req1.then((data) => {
             req1_data = data;
             return req1_data;
         });
+        
         console.log(req2);
         req2.then((data) => {
             var result = document.getElementById('result');
@@ -439,6 +445,7 @@ function retrieveData(url) {
         // Neighborhood crime numbers
         var neighborhood_num_crimes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+
         //headers with the database's styling
         var headers = ["case_number", "date_time", "code", "incident", "police_grid", "neighborhood_number", "block"];
         //How they will show up on the web page
@@ -476,17 +483,81 @@ function retrieveData(url) {
         // Table
         app.table.rows = data_complete;
         // End Making the table
+        access_data_complete = data_complete;
 
 
-        console.log(data_complete);
+
         // Markers
         for(var i = 0; i < 17; i++) {
+            var name;
+            for(var j = 0; j < 17; j++) {
+                if(neighborhoods[j]["id"] == (i+1)) {
+                    name = neighborhoods[j]["name"];
+                }
+            }
             // This is to initalize the marker
             neighborhood_markers[i]["marker"] = L.marker(neighborhood_markers[i]["location"]).addTo(map); 
             // Pop Up
-            neighborhood_markers[i]["marker"].bindPopup("There were " + neighborhood_num_crimes[i] + " incidents committed<br>in this neighborhood.").openPopup();
+            neighborhood_markers[i]["marker"].bindPopup("There were " + neighborhood_num_crimes[i] + " incidents committed<br>in " + name + ".").openPopup();
         }
     }).catch((error) => {
         console.log('Error:', error);
     });
+}
+
+function tableChange(currentBoundaries, data_input) {
+    var url;
+    var temp_block;
+    var output = [];
+    var promises = [];
+    for(var i = 0; i < 10; i++) {
+        //Convert block into coordinates
+        if(data_input[i]["Block"] != NaN) {
+            if(data_input[i]["Block"].includes('X')) {
+                var first_char = data_input[i]["Block"].split(' ')[0][0];
+                if((first_char == 'X') || (parseInt(first_char))) {
+                    var length = data_input[i]["Block"].split(' ').length;
+                    temp_block = data_input[i]["Block"].split(' ')[0].replaceAll("X", "0");
+                    temp_block = temp_block + data_input[i]["Block"].split(' ').slice(1, length);
+                }
+            } else {
+                temp_block = data_input[i]["Block"];
+            }
+
+            url = 'https://nominatim.openstreetmap.org/search?q=' + temp_block +
+                '&format=json&limit=25&accept-language=en';
+            var req1_data;
+            //var req1 = getJSON(url);
+            promises.push(getJSON(url).then((data) => {
+                let holder = i;
+                req1_data = data;
+                var breakTag = 0;
+                var good_data;
+                for (var j = 0; j<data.length; j++){
+                    var currentItem = data[j].display_name;
+                    if (currentItem.search("Saint Paul") !== -1 && currentItem.search("Minnesota") !== -1 && breakTag !== 1) {
+                        breakTag = 1;
+                        good_data = data[j];
+                    }
+                }
+
+                //If the block is inside the current view, keep, else delete
+                console.log("Lat / Lon " + holder);
+                console.log(good_data);
+                console.log(data_input[holder]);
+                //console.log(req2["lon"]);
+                if((good_data["lat"] < currentBoundaries[0][0]) && (good_data["lat"] > currentBoundaries[1][0]) && (good_data["lon"] < currentBoundaries[1][1]) && (good_data["lon"] > currentBoundaries[0][1])) {
+                    //This is a good entry
+                    output.push(data_input[holder]);
+                } else {
+                    //This is a bad entry
+                    //data_input.splice(i, 1);
+                }
+            }));
+
+            
+        }
+    }
+
+    app.table.rows = output;
 }
