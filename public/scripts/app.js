@@ -21,6 +21,78 @@ let neighborhood_markers =
     {location: [44.937705, -93.136997], marker: null},
     {location: [44.949203, -93.093739], marker: null}
 ];
+
+let neighborhood_corners =
+[
+    {
+        northEast: [44.963051477060176, -93.00432023434075],
+        southWest: [44.89074131936859, -93.05689358311416]
+    }, // Conway / Battlecreek / Highwood
+    {
+        northEast: [44.99199669949226, -93.0050502494359],
+        southWest: [44.96303599843238, -93.04595305852973]
+    }, // Greater East Side
+    {
+        northEast: [44.94758833373148, -93.04946201922425],
+        southWest: [44.91949112043027, -93.12862859386367]
+    }, // West Side
+    {
+        northEast: [44.97502524669413, -93.03629458095209],
+        southWest: [44.942636933617976, -93.09137142305904]
+    }, // Dayton's Bluff
+    {
+        northEast: [44.9920075027649, -93.04487789034481],
+        southWest: [44.95574154716504, -93.09139843304911]
+    }, // Payne / Phalen
+    {
+        northEast: [44.991858489918506, -93.08868206981091],
+        southWest: [44.96305276688401, 93.12628722942853]
+    }, // North End
+    {
+        northEast: [44.96746110429428, -93.09085886089726],
+        southWest: [44.95488459389262, -93.14660818572733]
+    }, // Thomas / Dale (Frogtown)
+    {
+        northEast: [44.9557742427239, -93.10566061047254],
+        southWest: [44.941320733198545, -93.14661459368291]
+    }, // Summit / University
+    {
+        northEast: [44.94656202969599, -93.08986498644425],
+        southWest: [44.90389521144594, -93.15565804565087]
+    }, // West Seventh
+    {
+        northEast: [44.991967046558564, -93.1261001783012],
+        southWest: [44.965789553373995, -93.17210629231126]
+    }, // Como
+    {
+        northEast: [44.97235945683258, -93.14658756101126],
+        southWest: [44.9556411646288, -93.18736333038666]
+    }, // Hamline / Midway
+    {
+        northEast: [44.988077357724514, -93.1670377771624],
+        southWest: [44.95437119617621, -93.20777481826674]
+    }, // St. Anthony
+    {
+        northEast: [44.959960803815875, -93.14660818572733],
+        southWest: [44.941396531811804, -93.20777042679448]
+    }, // Union Park
+    {
+        northEast: [44.94149547557926, -93.14392221267398],
+        southWest: [44.92692332165782, -93.20079053834702]
+    }, // Macalester-Groveland
+    {
+        northEast: [44.92703665813345, -93.13859200715778],
+        southWest: [44.88743039225853, -93.20155587834456]
+    }, // Highland
+    {
+        northEast: [44.94144201275586, -93.11229492879083],
+        southWest: [44.92865832257884, -93.15293699653286] 
+    }, // Summit Hill
+    {
+        northEast: [44.95786335307879, -93.07928496583061],
+        southWest: [44.94130490014756, -93.11795853286192]
+    } // Capitol River
+]
 var codes_dict = [
     { id: 1, name: "Murder", code: [110, 120] },
     { id: 2, name: "Rape", code: [210, 220] },
@@ -180,6 +252,7 @@ function init() {
                 }
 
                 retrieveData(url);
+                crimeMarkers(this.table.rows);
             },
             
             "sortTable": function sortTable(col) {
@@ -252,6 +325,8 @@ function init() {
             ]
         );
         
+        mapChangeTable(currentBounds);
+
         console.log(
             'center: ' + map.getCenter() +'\n'+
             'currentWidth: ' + currentWidth +'\n'+
@@ -275,7 +350,8 @@ function init() {
             ]
         );
         
-        
+        mapChangeTable(currentBounds);
+
         console.log(
             'center: ' + map.getCenter() +'\n'+
             'currentWidth: ' + currentWidth +'\n'+
@@ -505,15 +581,16 @@ function retrieveData(url) {
     });
 }
 
-function tableChange(currentBoundaries, data_input) {
+function crimeMarkers(data_input) {
     var url;
     var temp_block;
     var output = [];
-    var promises = [];
-    for(var i = 0; i < 10; i++) {
+    var crime_markers = [];
+    var temp_block_string;
+    for(var i = 0; i < data_input.length; i++) {
         //Convert block into coordinates
         if(data_input[i]["Block"] != NaN) {
-            if(data_input[i]["Block"].includes('X')) {
+            /*if(data_input[i]["Block"].includes('X')) {
                 var first_char = data_input[i]["Block"].split(' ')[0][0];
                 if((first_char == 'X') || (parseInt(first_char))) {
                     var length = data_input[i]["Block"].split(' ').length;
@@ -522,14 +599,15 @@ function tableChange(currentBoundaries, data_input) {
                 }
             } else {
                 temp_block = data_input[i]["Block"];
-            }
+            }*/
+            temp_block = data_input[i]["Block"].replaceAll("X", "0");
+            temp_block_string = "On " + data_input[i]["Date / Time"].split("T")[0] + " at " + data_input[i]["Date / Time"].split("T")[1] + " a " + data_input[i]["Incident"] + " occured";
 
             url = 'https://nominatim.openstreetmap.org/search?q=' + temp_block +
                 '&format=json&limit=25&accept-language=en';
             var req1_data;
-            //var req1 = getJSON(url);
-            promises.push(getJSON(url).then((data) => {
-                let holder = i;
+            var req1 = getJSON(url);
+            var req2 = req1.then((data) => {
                 req1_data = data;
                 var breakTag = 0;
                 var good_data;
@@ -541,23 +619,64 @@ function tableChange(currentBoundaries, data_input) {
                     }
                 }
 
-                //If the block is inside the current view, keep, else delete
-                console.log("Lat / Lon " + holder);
-                console.log(good_data);
-                console.log(data_input[holder]);
-                //console.log(req2["lon"]);
-                if((good_data["lat"] < currentBoundaries[0][0]) && (good_data["lat"] > currentBoundaries[1][0]) && (good_data["lon"] < currentBoundaries[1][1]) && (good_data["lon"] > currentBoundaries[0][1])) {
-                    //This is a good entry
-                    output.push(data_input[holder]);
-                } else {
-                    //This is a bad entry
-                    //data_input.splice(i, 1);
+                if(good_data) {
+                    var redIcon = new L.Icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+                        shadowURL: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    })
+                    var mp = L.marker([good_data["lat"], good_data["lon"]], {icon: redIcon});
+                    let text_marker = document.createElement("div");
+                    text_marker.textContent = temp_block_string;
+                    
+                    let delete_marker = document.createElement("button");
+                    delete_marker.type = "button";
+
+				    delete_marker.textContent = "Delete";
+				    
+				    text_marker.appendChild(delete_marker);
+				
+				    mp.bindPopup(text_marker);
+				    map.addLayer(mp);
+				
+				    delete_marker.onclick = function(){
+					    map.removeLayer(mp);
+				    }
+                    //crime_markers[crime_markers.length-1].bindPopup(marker.bindPopup("Hello").openPopup());
                 }
-            }));
+                
+            }).catch((error) => {
+                console.log(error);
+            });
 
             
         }
     }
 
     app.table.rows = output;
+}
+
+function mapChangeTable(currentBounds) {
+    var n = currentBounds[0][0]; //north
+    var e = currentBounds[1][1]; //east
+    var s = currentBounds[1][0]; //south
+    var w = currentBounds[0][1]; //west
+    var neighborhoods_in = [];
+    for(var i = 0; i < neighborhood_corners.length; i++) {
+        var north = neighborhood_corners[i]["northEast"][0];
+        var east = neighborhood_corners[i]["northEast"][1];
+        var south = neighborhood_corners[i]["southWest"][0];
+        var west = neighborhood_corners[i]["southWest"][0]
+        if(((north > s) && (north < n)) || ((south > s) && (south < n)) || ((east < e) && (east > w)) || ((west < e) && (west > w))) {
+            neighborhoods_in.push(i + 1);
+        }
+    }
+    var url = 'http://localhost:8000/incidents?neighborhood_number=' + neighborhoods_in[0];
+    for(var i = 1; i < neighborhoods_in.length; i++) {
+        url = url + ',' + neighborhoods_in[i];
+    }
+    retrieveData(url);
 }
